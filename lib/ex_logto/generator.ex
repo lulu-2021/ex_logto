@@ -23,7 +23,7 @@ defmodule ExLogto.Generator do
   def generate_state, do: generate_code_verifier()
 
   def generate_code_verifier do
-    symbols = '0123456789abcdef'
+    symbols = ~c"0123456789abcdef"
     symbol_count = Enum.count(symbols)
     for _ <- 1..@base, into: "", do: <<rand_char(symbols, symbol_count)>>
   end

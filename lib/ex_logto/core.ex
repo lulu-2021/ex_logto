@@ -34,7 +34,17 @@ defmodule ExLogto.Core do
         prompt: prompt
       }) do
     with {:ok, uri} <- parse_url(authorization_endpoint),
-         queries = build_queries(uri, client_id, redirect_uri, code_challenge, state, scopes, resources, prompt),
+         queries =
+           build_queries(
+             uri,
+             client_id,
+             redirect_uri,
+             code_challenge,
+             state,
+             scopes,
+             resources,
+             prompt
+           ),
          {:ok, unescaped_queries} <- url_unescape(queries) do
       {:ok, "#{uri.scheme}://#{uri.host}:#{uri.port}#{uri.path}?#{unescaped_queries}"}
     else
@@ -48,8 +58,9 @@ defmodule ExLogto.Core do
   def generate_sign_out_uri(options) do
     case parse_url(options.end_session_endpoint) do
       {:ok, uri} ->
-        queries = uri.query
-        |> build_logout_query(options)
+        queries =
+          uri.query
+          |> build_logout_query(options)
 
         logout_url = "#{uri.scheme}://#{uri.host}:#{uri.port}#{uri.path}?#{queries}"
 
@@ -73,11 +84,13 @@ defmodule ExLogto.Core do
     - {:error, reason} (tuple): The error reason if the verification fails.
   """
   def get_code_from_callback_uri(callback_uri) do
-    uri = callback_uri
-    |> URI.parse()
+    uri =
+      callback_uri
+      |> URI.parse()
 
-    decoded = uri.query
-    |> URI.decode_query()
+    decoded =
+      uri.query
+      |> URI.decode_query()
 
     %{"code" => code} = decoded
 
@@ -108,7 +121,7 @@ defmodule ExLogto.Core do
         code: options[:code],
         grant_type: "authorization_code"
       })
-      |> Kernel.<>((if options[:resource], do: "&resource=#{options[:resource]}", else: ""))
+      |> Kernel.<>(if options[:resource], do: "&resource=#{options[:resource]}", else: "")
 
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
 
@@ -151,9 +164,15 @@ defmodule ExLogto.Core do
         refresh_token: options[:refresh_token],
         grant_type: "refresh_token"
       })
-      |> Kernel.<>((if options[:resource], do: "&resource=#{options[:resource]}", else: ""))
-      |> Kernel.<>((if options[:scopes], do: "&scope=#{Enum.join(options[:scopes], " ")}", else: ""))
-      |> Kernel.<>((if options[:organization_id], do: "&organization_id=#{options[:organization_id]}", else: ""))
+      |> Kernel.<>(if options[:resource], do: "&resource=#{options[:resource]}", else: "")
+      |> Kernel.<>(
+        if options[:scopes], do: "&scope=#{Enum.join(options[:scopes], " ")}", else: ""
+      )
+      |> Kernel.<>(
+        if options[:organization_id],
+          do: "&organization_id=#{options[:organization_id]}",
+          else: ""
+      )
 
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
 
@@ -179,7 +198,7 @@ defmodule ExLogto.Core do
 
     ClientConfig.user_info_endpoint()
     |> HTTPoison.get(headers)
-    |> case  do
+    |> case do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, Poison.decode!(body, as: %{})}
 
@@ -212,7 +231,16 @@ defmodule ExLogto.Core do
 
   defp uri_encode_queries(queries), do: URI.encode_query(queries)
 
-  defp build_queries(uri, client_id, redirect_uri, code_challenge, state, scopes, resources, prompt) do
+  defp build_queries(
+         uri,
+         client_id,
+         redirect_uri,
+         code_challenge,
+         state,
+         scopes,
+         resources,
+         prompt
+       ) do
     queries =
       uri.query
       |> decode_query()

@@ -1,5 +1,4 @@
 defmodule ExLogto do
-
   @moduledoc """
 
   """
@@ -15,6 +14,7 @@ defmodule ExLogto do
     |> case do
       {:ok, sign_in_uri} ->
         {:ok, sign_in_uri}
+
       {:error, message} ->
         {:error, message}
     end
@@ -36,6 +36,7 @@ defmodule ExLogto do
   def handle_signin_callback(session, callback_uri) do
     code_verifier = get_code_verifier(session)
     code = Core.get_code_from_callback_uri(callback_uri)
+
     ClientConfig.callback_url()
     |> Client.process_callback(code_verifier, code)
     |> case do
@@ -45,7 +46,7 @@ defmodule ExLogto do
         |> user_info()
 
       {:error, message} ->
-        #IO.inspect message, label: "signing callback failed"
+        # IO.inspect message, label: "signing callback failed"
         {:error, message}
     end
   end
@@ -78,15 +79,16 @@ defmodule ExLogto do
   def state, do: generate_state()
 
   def is_authenticated?(conn) do
-    session_tokens = conn.private.plug_session
-    |> session_tokens()
+    session_tokens =
+      conn.private.plug_session
+      |> session_tokens()
 
-    IO.inspect session_tokens, label: "authenticated? session tokens"
+    IO.inspect(session_tokens, label: "authenticated? session tokens")
 
     session_tokens != nil
   end
 
-  #------ private functions -------#
+  # ------ private functions -------#
 
   defp session_tokens(%{"tokens" => tokens}), do: tokens
 
@@ -97,15 +99,21 @@ defmodule ExLogto do
     |> Core.fetch_user_info()
     |> case do
       {:ok, user_info} ->
-        #IO.inspect user_info, label: "user info"
+        # IO.inspect user_info, label: "user info"
         {:ok, Map.put(data, :user_info, user_info)}
+
       {:error, error} ->
-        #IO.inspect error, label: "user info fetch failed"
+        # IO.inspect error, label: "user info fetch failed"
         {:error, error}
     end
   end
 
-  defp decode_token(%{"id_token" => id, "refresh_token" => refresh, "access_token" => access, "expires_in" => exp}) do
+  defp decode_token(%{
+         "id_token" => id,
+         "refresh_token" => refresh,
+         "access_token" => access,
+         "expires_in" => exp
+       }) do
     id
     |> Token.unpack_token()
     |> Token.decode_token()

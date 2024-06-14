@@ -22,9 +22,10 @@ defmodule ExLogto.Client do
 
         {:ok, sign_in_session_json_value} = Jason.encode(sign_in_session)
         storage = %{} |> Map.put(:storage_key_sign_in_session, sign_in_session_json_value)
-        IO.inspect storage, label: "session storage for later validation"
+        IO.inspect(storage, label: "session storage for later validation")
 
         {:ok, sign_in_uri}
+
       {:error, reason} ->
         {:error, reason}
     end
@@ -39,6 +40,7 @@ defmodule ExLogto.Client do
       code_verifier: code_verifier,
       code: code
     }
+
     Core.fetch_token_by_authorization_code(options)
   end
 
@@ -48,9 +50,11 @@ defmodule ExLogto.Client do
       end_session_endpoint: ClientConfig.end_session_endpoint(),
       post_logout_redirect_uri: ClientConfig.post_logout_redirect_url()
     }
+
     case Core.generate_sign_out_uri(options) do
       {:ok, logout_url} ->
         {:ok, logout_url}
+
       {:error, error} ->
         {:error, error}
     end

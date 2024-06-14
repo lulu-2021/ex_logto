@@ -2,7 +2,7 @@ defmodule ExLogto.ClientConfig do
   @moduledoc """
     all the configuration options handled in one place - the scopes
   """
-alias ElixirLS.LanguageServer.Application
+  alias ElixirLS.LanguageServer.Application
 
   @default_prompt "consent"
   @default_scopes ["openid", "offline_access", "email", "profile"]
