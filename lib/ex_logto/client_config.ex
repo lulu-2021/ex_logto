@@ -21,24 +21,27 @@ defmodule ExLogto.ClientConfig do
     }
   end
 
-  def scopes, do: Application.get_env(:ex_logto, __MODULE__, :scopes) || @default_scopes
-  def resources, do: Application.get_env(:ex_logto, __MODULE__, :resources) || @default_resources
-  def prompt, do: Application.get_env(:ex_logto, __MODULE__, :prompt) || @default_prompt
+  def scopes, do: logto_config()[:scopes] || @default_scopes
+  def resources, do: logto_config()[:resources] || @default_resources
+  def prompt, do: logto_config()[:prompt] || @default_prompt
 
-  def callback_url, do: Application.get_env(:ex_logto, __MODULE__, :callback_url)
-  def post_logout_redirect_url, do: Application.get_env(:ex_logto, __MODULE__, :post_logout_redirect_url)
+  def callback_url, do: logto_config()[:callback_url]
+  def post_logout_redirect_url, do: logto_config()[:post_logout_redirect_url]
 
-  def client_id, do: Application.get_env(:ex_logto, __MODULE__, :client_id)
-  def client_secret, do: Application.get_env(:ex_logto, __MODULE__, :client_secret)
+  def client_id, do: logto_config()[:client_id]
+  def client_secret, do: logto_config()[:client_secret]
 
-  def id_server_base, do: Application.get_env(:ex_logto, __MODULE__, :id_server_base)
-  def id_server_port, do: Application.get_env(:ex_logto, __MODULE__, :id_server_port)
-  def authorization_endpoint, do: Application.get_env(:ex_logto, __MODULE__, :authorization_endpoint) |> build_url()
-  def token_endpoint, do: Application.get_env(:ex_logto, __MODULE__, :token_endpoint) |> build_url()
+  def id_server_base, do: logto_config()[:id_server_base]
+  def id_server_port, do: logto_config()[:id_server_port]
 
-  def end_session_endpoint, do: Application.get_env(:ex_logto, __MODULE__, :end_session_endpoint) |> build_url()
+  def authorization_endpoint, do: logto_config()[:authorization_endpoint] |> build_url()
+  def token_endpoint, do: logto_config()[:token_endpoint] |> build_url()
+  def end_session_endpoint, do: logto_config()[:end_session_endpoint] |> build_url()
+  def user_info_endpoint, do: logto_config()[:user_info_endpoint] |> build_url()
 
-  def user_info_endpoint, do: Application.get_env(:ex_logto, __MODULE__, :user_info_endpoint) |> build_url()
+  defp logto_config(), do: Application.get_env(:ex_logto, ExLogto.ClientConfig)
+
+  # ---------- private functions ---------- #
 
   defp build_url(endpoint) do
     "#{id_server_base()}#{id_server_port()}#{endpoint}"
