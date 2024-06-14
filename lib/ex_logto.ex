@@ -1,9 +1,8 @@
 defmodule ExLogto do
-  @moduledoc """
+  @moduledoc false
 
-  """
   import ExLogto.Generator
-  alias ExLogto.{Core, Client, ClientConfig, Token, RequestUtils}
+  alias ExLogto.{Client, ClientConfig, Core, RequestUtils, Token}
 
   @doc """
     here the redirect_url should be the callback url in our app..
@@ -78,12 +77,10 @@ defmodule ExLogto do
 
   def state, do: generate_state()
 
-  def is_authenticated?(conn) do
+  def authenticated?(conn) do
     session_tokens =
       conn.private.plug_session
       |> session_tokens()
-
-    IO.inspect(session_tokens, label: "authenticated? session tokens")
 
     session_tokens != nil
   end

@@ -1,4 +1,6 @@
 defmodule ExLogto.RequestUtils do
+  @moduledoc false
+
   @doc """
     Generates the origin request URL based on the given HTTP request.
 

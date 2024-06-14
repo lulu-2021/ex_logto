@@ -217,7 +217,6 @@ defmodule ExLogto.Core do
     |> decode_query()
     |> Map.put("cliend_id", options.client_id)
     |> add_post_logout_uri_to_queries(options)
-    |> IO.inspect()
     |> uri_encode_queries()
   end
 

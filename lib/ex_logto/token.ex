@@ -1,7 +1,5 @@
 defmodule ExLogto.Token do
-  @moduledoc """
-
-  """
+  @moduledoc false
 
   @type id_token_claims :: map()
 

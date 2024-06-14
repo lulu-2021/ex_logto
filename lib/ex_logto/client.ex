@@ -1,6 +1,5 @@
 defmodule ExLogto.Client do
-  @moduledoc """
-  """
+  @moduledoc false
 
   alias ExLogto.{ClientConfig, Core}
 
@@ -22,7 +21,7 @@ defmodule ExLogto.Client do
 
         {:ok, sign_in_session_json_value} = Jason.encode(sign_in_session)
         storage = %{} |> Map.put(:storage_key_sign_in_session, sign_in_session_json_value)
-        IO.inspect(storage, label: "session storage for later validation")
+        #IO.inspect(storage, label: "session storage for later validation")
 
         {:ok, sign_in_uri}
 
