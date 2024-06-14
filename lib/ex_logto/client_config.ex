@@ -43,6 +43,6 @@ defmodule ExLogto.ClientConfig do
   # ---------- private functions ---------- #
 
   defp build_url(endpoint) do
-    "#{id_server_base()}#{id_server_port()}#{endpoint}"
+    "#{id_server_base()}:#{id_server_port()}#{endpoint}"
   end
 end
