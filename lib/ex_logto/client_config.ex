@@ -2,7 +2,6 @@ defmodule ExLogto.ClientConfig do
   @moduledoc """
     all the configuration options handled in one place - the scopes
   """
-  alias ElixirLS.LanguageServer.Application
 
   @default_prompt "consent"
   @default_scopes ["openid", "offline_access", "email", "profile"]
@@ -39,7 +38,7 @@ defmodule ExLogto.ClientConfig do
   def end_session_endpoint, do: logto_config()[:end_session_endpoint] |> build_url()
   def user_info_endpoint, do: logto_config()[:user_info_endpoint] |> build_url()
 
-  defp logto_config(), do: Application.get_env(:ex_logto, ExLogto.ClientConfig)
+  defp logto_config(), do: Application.get_env(:ex_logto, :ex_logto_options)
 
   # ---------- private functions ---------- #
 
