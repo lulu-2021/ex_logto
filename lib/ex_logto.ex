@@ -89,6 +89,8 @@ defmodule ExLogto do
 
   defp session_tokens(%{"tokens" => tokens}), do: tokens
 
+  defp session_tokens(_params), do: nil
+
   defp get_code_verifier(%{"code_verifier" => code_verifier}), do: code_verifier
 
   defp user_info(%{access_token: access_token} = data) do
