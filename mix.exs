@@ -28,6 +28,7 @@ defmodule ExLogto.MixProject do
       {:jason, "~> 1.2"},
       {:jose, "~> 1.11"},
       {:poison, "~> 6.0.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
       #
       # {:dep_from_hexpm, "~> 0.3.0"},
