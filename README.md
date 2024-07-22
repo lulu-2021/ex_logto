@@ -1,6 +1,8 @@
 # ExLogto
 
-**TODO: Add description**
+**Alpha stage library - please do not use in production**
+
+This is an Elixir client library for https://logto.io Authentication
 
 ## Installation
 
