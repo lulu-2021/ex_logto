@@ -4,7 +4,7 @@ defmodule ExLogto.MixProject do
   def project do
     [
       app: :ex_logto,
-      version: "0.1.3",
+      version: "0.1.4",
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -25,9 +25,9 @@ defmodule ExLogto.MixProject do
   defp deps do
     [
       {:httpoison, "~> 2.2"},
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.4.4"},
       {:jose, "~> 1.11"},
-      {:poison, "~> 6.0.0"},
+      #{:poison, "~> 6.0.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
       #

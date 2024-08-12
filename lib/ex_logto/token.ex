@@ -14,5 +14,6 @@ defmodule ExLogto.Token do
   - {:error, reason} on failure.
   """
   def unpack_token(token), do: JOSE.JWS.peek_payload(token)
-  def decode_token(token), do: Poison.decode(token, %{})
+  #def decode_token(token), do: Poison.decode(token, %{})
+  def decode_token(token), do: Jason.decode(token, %{})
 end

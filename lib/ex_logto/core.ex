@@ -132,7 +132,8 @@ defmodule ExLogto.Core do
 
     case HTTPoison.post(options[:token_endpoint], body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, Poison.decode!(body)}
+        #{:ok, Poison.decode!(body)}
+        {:ok, Jason.decode!(body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         {:error, "HTTP #{status_code}: #{body}"}
@@ -183,7 +184,8 @@ defmodule ExLogto.Core do
 
     case HTTPoison.post(options[:token_endpoint], body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, Poison.decode!(body)}
+        #{:ok, Poison.decode!(body)}
+        {:ok, Jason.decode!(body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         {:error, "HTTP #{status_code}: #{body}"}
@@ -200,7 +202,8 @@ defmodule ExLogto.Core do
     |> HTTPoison.get(headers)
     |> case do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, Poison.decode!(body, as: %{})}
+        #{:ok, Poison.decode!(body, as: %{})}
+        {:ok, Jason.decode!(body, as: %{})}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         {:error, %{status_code: status_code, body: body}}
