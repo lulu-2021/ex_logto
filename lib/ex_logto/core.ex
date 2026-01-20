@@ -11,6 +11,10 @@ defmodule ExLogto.Core do
 
   alias ExLogto.ClientConfig
 
+  defp http_client do
+    Application.get_env(:ex_logto, :http_client, ExLogto.HttpClient)
+  end
+
   @doc """
   Generates a sign-in URI based on the provided options.
 
@@ -130,9 +134,8 @@ defmodule ExLogto.Core do
         do: [hackney: [basic_auth: {options[:client_id], options[:client_secret]}]],
         else: []
 
-    case HTTPoison.post(options[:token_endpoint], body, headers, auth) do
+    case http_client().post(options[:token_endpoint], body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        #{:ok, Poison.decode!(body)}
         {:ok, Jason.decode!(body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
@@ -182,9 +185,8 @@ defmodule ExLogto.Core do
         do: [hackney: [basic_auth: {options[:client_id], options[:client_secret]}]],
         else: []
 
-    case HTTPoison.post(options[:token_endpoint], body, headers, auth) do
+    case http_client().post(options[:token_endpoint], body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        #{:ok, Poison.decode!(body)}
         {:ok, Jason.decode!(body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
@@ -202,7 +204,7 @@ defmodule ExLogto.Core do
     |> HTTPoison.get(headers)
     |> case do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        #{:ok, Poison.decode!(body, as: %{})}
+        # {:ok, Poison.decode!(body, as: %{})}
         {:ok, Jason.decode!(body, as: %{})}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->

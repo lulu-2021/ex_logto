@@ -15,6 +15,8 @@ defmodule ExLogto do
         {:ok, sign_in_uri}
 
       {:error, message} ->
+        IO.inspect(message)
+
         {:error, message}
     end
   end
