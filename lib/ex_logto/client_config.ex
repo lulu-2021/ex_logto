@@ -4,7 +4,7 @@ defmodule ExLogto.ClientConfig do
   """
 
   @default_prompt "consent"
-  @default_scopes ["openid", "offline_access", "email", "profile"]
+  @default_scopes ["openid", "offline_access", "email", "profile", "roles"]
   @default_resources []
 
   def signin_options(code_challenge, state, redirect_uri) do

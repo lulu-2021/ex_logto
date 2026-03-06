@@ -24,7 +24,7 @@ defmodule ExLogto do
   @doc """
     handle the sign out process
   """
-  def sign_out do
+  def sign_out() do
     case Client.sign_out() do
       {:ok, logout_url} ->
         {:ok, logout_url}
@@ -35,20 +35,13 @@ defmodule ExLogto do
   end
 
   def handle_signin_callback(session, callback_uri) do
-    code_verifier = get_code_verifier(session)
-    code = Core.get_code_from_callback_uri(callback_uri)
-
-    ClientConfig.callback_url()
-    |> Client.process_callback(code_verifier, code)
-    |> case do
-      {:ok, token_map} ->
-        token_map
-        |> decode_token()
-        |> user_info()
-
-      {:error, message} ->
-        # IO.inspect message, label: "signing callback failed"
-        {:error, message}
+    case Core.get_code_from_callback_uri(callback_uri) do
+      {:ok, code} ->
+        session
+        |> get_code_verifier()
+        |> handle_client_callback(code)
+      {:error, error} ->
+        {:error, error}
     end
   end
 
@@ -89,6 +82,21 @@ defmodule ExLogto do
 
   # ------ private functions -------#
 
+  defp handle_client_callback(code_verifier, code) do
+    ClientConfig.callback_url()
+    |> Client.process_callback(code_verifier, code)
+    |> case do
+      {:ok, token_map} ->
+        token_map
+        |> decode_token()
+        |> user_info()
+
+      {:error, message} ->
+        # IO.inspect message, label: "signing callback failed"
+        {:error, message}
+    end
+  end
+
   defp session_tokens(%{"tokens" => tokens}), do: tokens
 
   defp session_tokens(_params), do: nil
@@ -114,7 +122,10 @@ defmodule ExLogto do
          "refresh_token" => refresh,
          "access_token" => access,
          "expires_in" => exp
-       }) do
+       } = params) do
+
+         IO.puts "\n\n Decoding token (params): #{inspect(params)}\n\n"
+
     id
     |> Token.unpack_token()
     |> Token.decode_token()

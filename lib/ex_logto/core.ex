@@ -96,9 +96,12 @@ defmodule ExLogto.Core do
       uri.query
       |> URI.decode_query()
 
-    %{"code" => code} = decoded
-
-    code
+    case decoded do
+      %{"code" => code} ->
+        {:ok, code}
+      %{"error" => error} ->
+        {:error, error}
+    end
   end
 
   @doc """
@@ -220,7 +223,7 @@ defmodule ExLogto.Core do
   defp build_logout_query(query, options) do
     query
     |> decode_query()
-    |> Map.put("cliend_id", options.client_id)
+    |> Map.put("client_id", options.client_id)
     |> add_post_logout_uri_to_queries(options)
     |> uri_encode_queries()
   end
