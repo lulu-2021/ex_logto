@@ -40,6 +40,7 @@ defmodule ExLogto do
         session
         |> get_code_verifier()
         |> handle_client_callback(code)
+
       {:error, error} ->
         {:error, error}
     end
@@ -108,24 +109,21 @@ defmodule ExLogto do
     |> Core.fetch_user_info()
     |> case do
       {:ok, user_info} ->
-        # IO.inspect user_info, label: "user info"
         {:ok, Map.put(data, :user_info, user_info)}
 
       {:error, error} ->
-        # IO.inspect error, label: "user info fetch failed"
         {:error, error}
     end
   end
 
-  defp decode_token(%{
-         "id_token" => id,
-         "refresh_token" => refresh,
-         "access_token" => access,
-         "expires_in" => exp
-       } = params) do
-
-         IO.puts "\n\n Decoding token (params): #{inspect(params)}\n\n"
-
+  defp decode_token(
+         %{
+           "id_token" => id,
+           "refresh_token" => refresh,
+           "access_token" => access,
+           "expires_in" => exp
+         } = _params
+       ) do
     id
     |> Token.unpack_token()
     |> Token.decode_token()

@@ -50,7 +50,10 @@ defmodule ExLogto.Core do
              prompt
            ),
          {:ok, unescaped_queries} <- url_unescape(queries) do
-      {:ok, "#{uri.scheme}://#{uri.host}:#{uri.port}#{uri.path}?#{unescaped_queries}"}
+      url =
+        ExLogto.UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, unescaped_queries)
+
+      {:ok, url}
     else
       {:error, reason} -> {:error, reason}
     end
@@ -66,7 +69,7 @@ defmodule ExLogto.Core do
           uri.query
           |> build_logout_query(options)
 
-        logout_url = "#{uri.scheme}://#{uri.host}:#{uri.port}#{uri.path}?#{queries}"
+        logout_url = ExLogto.UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, queries)
 
         {:ok, logout_url}
 
@@ -99,6 +102,7 @@ defmodule ExLogto.Core do
     case decoded do
       %{"code" => code} ->
         {:ok, code}
+
       %{"error" => error} ->
         {:error, error}
     end
@@ -134,17 +138,34 @@ defmodule ExLogto.Core do
 
     auth =
       if options[:client_secret],
-        do: [hackney: [basic_auth: {options[:client_id], options[:client_secret]}]],
+        do: [
+          hackney: [
+            # ssl: [{:verify, :verify_none}],
+            basic_auth: {options[:client_id], options[:client_secret]}
+          ]
+        ],
         else: []
 
-    case http_client().post(options[:token_endpoint], body, headers, auth) do
+    p = URI.parse(options[:token_endpoint])
+    token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
+    IO.puts("\n\n token_endpoint: #{inspect(token_endpoint)} \n\n")
+    #
+    # TODO - why does only the internal url work here?
+    #
+    token_endpoint = "http://sso.dev.lan:3001/oidc/token"
+
+    case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, Jason.decode!(body)}
+        decoded_token = Jason.decode!(body)
+
+        {:ok, decoded_token}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         {:error, "HTTP #{status_code}: #{body}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.puts("\n\n failed to fetch the authorization code: #{inspect(reason)}\n\n")
+
         {:error, reason}
     end
   end
@@ -203,7 +224,18 @@ defmodule ExLogto.Core do
   def fetch_user_info(access_token) do
     headers = [{"Authorization", "Bearer #{access_token}"}]
 
-    ClientConfig.user_info_endpoint()
+    p = URI.parse(ClientConfig.user_info_endpoint())
+    user_info_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
+    IO.puts("\n\n user_info_endpoint: #{inspect(user_info_endpoint)} \n\n")
+
+    user_info_endpoint = "http://sso.dev.lan:3001/oidc/me"
+    #
+    # TODO
+    #
+
+    # ClientConfig.user_info_endpoint()
+    user_info_endpoint
+    |> IO.inspect()
     |> HTTPoison.get(headers)
     |> case do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->

@@ -11,19 +11,11 @@ defmodule ExLogto.RequestUtils do
       The origin request URL as a string.
   """
   def get_origin_request_url(conn) do
-    request_protocol(conn) <>
-      "://" <>
-      conn.host <> ":" <> conn_port(conn) <> conn.request_path <> "/?" <> conn.query_string
-  end
+    port = "#{conn.port}"
+    path = conn.request_path
+    queries = conn.query_string
 
-  # ----------- private functions ----------- #
-
-  defp conn_port(conn), do: "#{conn.port}"
-
-  defp request_protocol(conn) do
-    case conn.scheme do
-      "https" -> "https"
-      _ -> "http"
-    end
+    conn.scheme
+    |> ExLogto.UrlUtils.clean_url(conn.host, port, path, queries)
   end
 end
