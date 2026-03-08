@@ -2,6 +2,7 @@ defmodule ExLogto.ClientConfig do
   @moduledoc """
     all the configuration options handled in one place - the scopes
   """
+  alias ExLogto.UrlUtils
 
   @default_prompt "consent"
   @default_scopes ["openid", "offline_access", "email", "profile", "roles"]
@@ -42,5 +43,10 @@ defmodule ExLogto.ClientConfig do
 
   # ---------- private functions ---------- #
 
-  defp build_url(endpoint), do: "#{id_server_base()}:#{id_server_port()}#{endpoint}"
+  defp build_url(endpoint) do
+    url = URI.parse("#{id_server_base()}:#{id_server_port()}")
+
+    url.scheme
+    |> UrlUtils.clean_url(url.host, url.port, endpoint)
+  end
 end

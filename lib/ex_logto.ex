@@ -15,8 +15,6 @@ defmodule ExLogto do
         {:ok, sign_in_uri}
 
       {:error, message} ->
-        IO.inspect(message)
-
         {:error, message}
     end
   end
@@ -93,7 +91,6 @@ defmodule ExLogto do
         |> user_info()
 
       {:error, message} ->
-        # IO.inspect message, label: "signing callback failed"
         {:error, message}
     end
   end

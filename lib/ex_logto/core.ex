@@ -147,12 +147,15 @@ defmodule ExLogto.Core do
         else: []
 
     p = URI.parse(options[:token_endpoint])
-    token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
-    IO.puts("\n\n token_endpoint: #{inspect(token_endpoint)} \n\n")
     #
-    # TODO - why does only the internal url work here?
+    # somehow in dev using mkcert this fails!
     #
-    token_endpoint = "http://sso.dev.lan:3001/oidc/token"
+    # token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
+
+    #
+    # we need to use the internal url for the token -- until we have resolved this cert issue
+    #
+    token_endpoint = ExLogto.UrlUtils.clean_url("http", p.host, "3001", p.path)
 
     case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -225,17 +228,17 @@ defmodule ExLogto.Core do
     headers = [{"Authorization", "Bearer #{access_token}"}]
 
     p = URI.parse(ClientConfig.user_info_endpoint())
-    user_info_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
-    IO.puts("\n\n user_info_endpoint: #{inspect(user_info_endpoint)} \n\n")
-
-    user_info_endpoint = "http://sso.dev.lan:3001/oidc/me"
     #
-    # TODO
+    # somehow in dev using mkcert this fails!
     #
+    # user_info_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
+    #
+    # we need to use the internal url for user_info -- until we have resolved this cert issue
+    #
+    user_info_endpoint = ExLogto.UrlUtils.clean_url("http", p.host, "3001", p.path)
 
     # ClientConfig.user_info_endpoint()
     user_info_endpoint
-    |> IO.inspect()
     |> HTTPoison.get(headers)
     |> case do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
