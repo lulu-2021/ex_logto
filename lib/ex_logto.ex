@@ -10,27 +10,12 @@ defmodule ExLogto do
   def sign_in(code_verifier, code_challenge, state) do
     ClientConfig.callback_url()
     |> Client.sign_in(code_challenge, code_verifier, state)
-    |> case do
-      {:ok, sign_in_uri} ->
-        {:ok, sign_in_uri}
-
-      {:error, message} ->
-        {:error, message}
-    end
   end
 
   @doc """
     handle the sign out process
   """
-  def sign_out() do
-    case Client.sign_out() do
-      {:ok, logout_url} ->
-        {:ok, logout_url}
-
-      {:error, error} ->
-        {:error, error}
-    end
-  end
+  def sign_out(), do: Client.sign_out()
 
   def handle_signin_callback(session, callback_uri) do
     case Core.get_code_from_callback_uri(callback_uri) do

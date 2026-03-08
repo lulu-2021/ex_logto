@@ -10,24 +10,20 @@ defmodule ExLogto.Client do
   def sign_in(redirect_uri, code_challenge, code_verifier, state) do
     signin_options = ClientConfig.signin_options(code_challenge, state, redirect_uri)
 
-    case Core.generate_sign_in_uri(signin_options) do
-      {:ok, sign_in_uri} ->
-        sign_in_session = %{
-          redirect_uri: redirect_uri,
-          code_verifier: code_verifier,
-          code_challenge: code_challenge,
-          state: state
-        }
+    {:ok, sign_in_uri} = Core.generate_sign_in_uri(signin_options)
 
-        {:ok, sign_in_session_json_value} = Jason.encode(sign_in_session)
-        storage = %{} |> Map.put(:storage_key_sign_in_session, sign_in_session_json_value)
-        IO.inspect(storage, label: "session storage for later validation")
+    sign_in_session = %{
+      redirect_uri: redirect_uri,
+      code_verifier: code_verifier,
+      code_challenge: code_challenge,
+      state: state
+    }
 
-        {:ok, sign_in_uri}
+    {:ok, sign_in_session_json_value} = Jason.encode(sign_in_session)
+    storage = %{} |> Map.put(:storage_key_sign_in_session, sign_in_session_json_value)
+    IO.inspect(storage, label: "session storage for later validation")
 
-      {:error, reason} ->
-        {:error, reason}
-    end
+    {:ok, sign_in_uri}
   end
 
   def process_callback(redirect_uri, code_verifier, code) do
@@ -50,12 +46,6 @@ defmodule ExLogto.Client do
       post_logout_redirect_uri: ClientConfig.post_logout_redirect_url()
     }
 
-    case Core.generate_sign_out_uri(options) do
-      {:ok, logout_url} ->
-        {:ok, logout_url}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    Core.generate_sign_out_uri(options)
   end
 end

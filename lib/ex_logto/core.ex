@@ -10,6 +10,7 @@ defmodule ExLogto.Core do
   require HTTPoison
 
   alias ExLogto.ClientConfig
+  alias ExLogto.UrlUtils
 
   defp http_client do
     Application.get_env(:ex_logto, :http_client, ExLogto.HttpClient)
@@ -37,45 +38,39 @@ defmodule ExLogto.Core do
         resources: resources,
         prompt: prompt
       }) do
-    with {:ok, uri} <- parse_url(authorization_endpoint),
-         queries =
-           build_queries(
-             uri,
-             client_id,
-             redirect_uri,
-             code_challenge,
-             state,
-             scopes,
-             resources,
-             prompt
-           ),
-         {:ok, unescaped_queries} <- url_unescape(queries) do
-      url =
-        ExLogto.UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, unescaped_queries)
+    uri = URI.parse(authorization_endpoint)
 
-      {:ok, url}
-    else
-      {:error, reason} -> {:error, reason}
-    end
+    queries =
+      build_queries(
+        uri,
+        client_id,
+        redirect_uri,
+        code_challenge,
+        state,
+        scopes,
+        resources,
+        prompt
+      )
+
+    unescaped_queries = URI.encode_query(queries)
+    url = ExLogto.UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, unescaped_queries)
+
+    {:ok, url}
   end
 
   @doc """
     generate a uri for signing out
   """
   def generate_sign_out_uri(options) do
-    case parse_url(options.end_session_endpoint) do
-      {:ok, uri} ->
-        queries =
-          uri.query
-          |> build_logout_query(options)
+    uri = URI.parse(options.end_session_endpoint)
 
-        logout_url = ExLogto.UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, queries)
+    queries =
+      uri.query
+      |> build_logout_query(options)
 
-        {:ok, logout_url}
+    logout_url = UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, queries)
 
-      {:error, error} ->
-        {:error, error}
-    end
+    {:ok, logout_url}
   end
 
   @doc """
@@ -155,7 +150,7 @@ defmodule ExLogto.Core do
     #
     # we need to use the internal url for the token -- until we have resolved this cert issue
     #
-    token_endpoint = ExLogto.UrlUtils.clean_url("http", p.host, "3001", p.path)
+    token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
 
     case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -167,8 +162,7 @@ defmodule ExLogto.Core do
         {:error, "HTTP #{status_code}: #{body}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
-        IO.puts("\n\n failed to fetch the authorization code: #{inspect(reason)}\n\n")
-
+        # IO.puts("\n\n failed to fetch the authorization code: #{inspect(reason)}\n\n")
         {:error, reason}
     end
   end
@@ -212,7 +206,18 @@ defmodule ExLogto.Core do
         do: [hackney: [basic_auth: {options[:client_id], options[:client_secret]}]],
         else: []
 
-    case http_client().post(options[:token_endpoint], body, headers, auth) do
+    p = URI.parse(options[:token_endpoint])
+    #
+    # somehow in dev using mkcert this fails!
+    #
+    # token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
+
+    #
+    # we need to use the internal url for the token -- until we have resolved this cert issue
+    #
+    token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
+
+    case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, Jason.decode!(body)}
 
@@ -235,15 +240,13 @@ defmodule ExLogto.Core do
     #
     # we need to use the internal url for user_info -- until we have resolved this cert issue
     #
-    user_info_endpoint = ExLogto.UrlUtils.clean_url("http", p.host, "3001", p.path)
+    user_info_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
 
-    # ClientConfig.user_info_endpoint()
     user_info_endpoint
     |> HTTPoison.get(headers)
     |> case do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # {:ok, Poison.decode!(body, as: %{})}
-        {:ok, Jason.decode!(body, as: %{})}
+        {:ok, Jason.decode!(body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         {:error, %{status_code: status_code, body: body}}
@@ -314,16 +317,5 @@ defmodule ExLogto.Core do
 
   defp build_prompt(prompt) do
     if prompt == "", do: "consent", else: prompt
-  end
-
-  defp parse_url(url) do
-    case URI.parse(url) do
-      %URI{} = uri -> {:ok, uri}
-      error -> {:error, error}
-    end
-  end
-
-  defp url_unescape(queries) do
-    {:ok, URI.encode_query(queries)}
   end
 end
