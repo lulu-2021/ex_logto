@@ -50,7 +50,7 @@ defmodule ExLogto.ClientConfigTest do
     assert signin[:prompt] == opts.prompt
 
     expected_auth_endpoint =
-      "#{opts.id_server_base}:#{opts.id_server_port}#{opts.authorization_endpoint}"
+      "#{opts.id_server_base}#{opts.authorization_endpoint}"
 
     assert signin[:authorization_endpoint] == expected_auth_endpoint
   end

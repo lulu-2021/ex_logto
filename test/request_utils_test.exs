@@ -11,7 +11,7 @@ defmodule ExLogto.RequestUtilsTest do
       query_string: "a=1"
     }
 
-    assert RequestUtils.get_origin_request_url(conn) == "https://example.com:443/path/?a=1"
+    assert RequestUtils.get_origin_request_url(conn) == "https://example.com/path?a=1"
   end
 
   test "get_origin_request_url builds http when scheme is not https" do
@@ -23,7 +23,6 @@ defmodule ExLogto.RequestUtilsTest do
       query_string: ""
     }
 
-    # Note: the implementation appends "/?" after request_path, so "/" becomes "//?"
-    assert RequestUtils.get_origin_request_url(conn) == "http://example.test:8080//?"
+    assert RequestUtils.get_origin_request_url(conn) == "http://example.test:8080/?"
   end
 end
