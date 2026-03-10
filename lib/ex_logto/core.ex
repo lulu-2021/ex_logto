@@ -30,7 +30,7 @@ defmodule ExLogto.Core do
   - `{:error, reason}`: an error tuple with the reason for the failure.
   """
   def generate_sign_in_uri(%{
-        authorization_endpoint: authorization_endpo"jtw4jQv5UbyMdRxziozmo4IHqaDnuSd7yTGiNmGjDahzUbO/wj55sQSnX6FlzZqj"int,
+        authorization_endpoint: authorization_endpoint,
         client_id: client_id,
         redirect_uri: redirect_uri,
         code_challenge: code_challenge,
@@ -71,8 +71,7 @@ defmodule ExLogto.Core do
 
     logout_url = UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, queries)
 
-    Logger.info(">>> Logout URL: #{inspect logout_url}")
-
+    Logger.info(">>> Logout URL: #{inspect(logout_url)}")
 
     {:ok, logout_url}
   end
@@ -151,12 +150,12 @@ defmodule ExLogto.Core do
     #
     token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
 
-    Logger.info(">>> Fetch TokenEndpoint: #{inspect token_endpoint}")
+    Logger.info(">>> Fetch TokenEndpoint: #{inspect(token_endpoint)}")
 
     #
     # we need to use the internal url for the token -- until we have resolved this cert issue
     #
-    #token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
+    # token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
 
     case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -218,12 +217,12 @@ defmodule ExLogto.Core do
     #
     token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
 
-    Logger.info(">>> Refresh TokenEndpoint: #{inspect token_endpoint}")
+    Logger.info(">>> Refresh TokenEndpoint: #{inspect(token_endpoint)}")
 
     #
     # we need to use the internal url for the token -- until we have resolved this cert issue
     #
-    #token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
+    # token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
 
     case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -246,12 +245,12 @@ defmodule ExLogto.Core do
     #
     user_info_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
 
-    Logger.info(">>> UserInfoEndpoint: #{inspect user_info_endpoint}")
+    Logger.info(">>> UserInfoEndpoint: #{inspect(user_info_endpoint)}")
 
     #
     # we need to use the internal url for user_info -- until we have resolved this cert issue
     #
-    #user_info_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
+    # user_info_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
 
     user_info_endpoint
     |> HTTPoison.get(headers)
