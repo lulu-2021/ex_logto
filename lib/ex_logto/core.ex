@@ -71,8 +71,6 @@ defmodule ExLogto.Core do
 
     logout_url = UrlUtils.clean_url(uri.scheme, uri.host, uri.port, uri.path, queries)
 
-    Logger.info(">>> Logout URL: #{inspect(logout_url)}")
-
     {:ok, logout_url}
   end
 
@@ -144,18 +142,10 @@ defmodule ExLogto.Core do
         ],
         else: []
 
-    p = URI.parse(options[:token_endpoint])
-    #
-    # somehow in dev using mkcert this fails!
-    #
-    token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
-
-    Logger.info(">>> Fetch TokenEndpoint: #{inspect(token_endpoint)}")
-
-    #
-    # we need to use the internal url for the token -- until we have resolved this cert issue
-    #
-    # token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
+    token_endpoint =
+      options[:token_endpoint]
+      |> URI.parse()
+      |> build_endpoint()
 
     case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -211,18 +201,10 @@ defmodule ExLogto.Core do
         do: [hackney: [basic_auth: {options[:client_id], options[:client_secret]}]],
         else: []
 
-    p = URI.parse(options[:token_endpoint])
-    #
-    # somehow in dev using mkcert this fails!
-    #
-    token_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
-
-    Logger.info(">>> Refresh TokenEndpoint: #{inspect(token_endpoint)}")
-
-    #
-    # we need to use the internal url for the token -- until we have resolved this cert issue
-    #
-    # token_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
+    token_endpoint =
+      options[:token_endpoint]
+      |> URI.parse()
+      |> build_endpoint()
 
     case http_client().post(token_endpoint, body, headers, auth) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -239,18 +221,10 @@ defmodule ExLogto.Core do
   def fetch_user_info(access_token) do
     headers = [{"Authorization", "Bearer #{access_token}"}]
 
-    p = URI.parse(ClientConfig.user_info_endpoint())
-    #
-    # somehow in dev using mkcert this fails!
-    #
-    user_info_endpoint = ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
-
-    Logger.info(">>> UserInfoEndpoint: #{inspect(user_info_endpoint)}")
-
-    #
-    # we need to use the internal url for user_info -- until we have resolved this cert issue
-    #
-    # user_info_endpoint = UrlUtils.clean_url("http", p.host, "3001", p.path)
+    user_info_endpoint =
+      ClientConfig.user_info_endpoint()
+      |> URI.parse()
+      |> build_endpoint()
 
     user_info_endpoint
     |> HTTPoison.get(headers)
@@ -267,6 +241,17 @@ defmodule ExLogto.Core do
   end
 
   # ---------- private functions ---------- #
+
+  defp build_endpoint(p) do
+    #
+    # in dev using mkcert for ssl causes ssl errors & we need to use the internal urls!
+    #
+    if config_env() == :prod do
+      ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
+    else
+      UrlUtils.clean_url("http", p.host, "3001", p.path)
+    end
+  end
 
   defp build_logout_query(query, options) do
     query
