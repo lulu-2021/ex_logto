@@ -246,7 +246,7 @@ defmodule ExLogto.Core do
     #
     # in dev using mkcert for ssl causes ssl errors & we need to use the internal urls!
     #
-    if config_env() == :prod do
+    if Application.get_env(:ex_logto, :env) == :prod do
       ExLogto.UrlUtils.clean_url(p.scheme, p.host, p.port, p.path)
     else
       UrlUtils.clean_url("http", p.host, "3001", p.path)

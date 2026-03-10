@@ -6,3 +6,5 @@
 
 # General application configuration
 import Config
+
+config :ex_logto, env: config_env()
