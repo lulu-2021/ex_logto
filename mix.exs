@@ -4,7 +4,7 @@ defmodule ExLogto.MixProject do
   def project do
     [
       app: :ex_logto,
-      version: "0.1.7",
+      version: "0.1.8",
       elixir: "~> 1.18.4",
       start_permanent: Mix.env() == :prod,
       description: description(),
