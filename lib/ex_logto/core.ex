@@ -11,6 +11,7 @@ defmodule ExLogto.Core do
 
   alias ExLogto.ClientConfig
   alias ExLogto.UrlUtils
+  require Logger
 
   defp http_client do
     Application.get_env(:ex_logto, :http_client, ExLogto.HttpClient)
