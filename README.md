@@ -12,7 +12,7 @@ by adding `ex_logto` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_logto, "~> 0.1.6"}
+    {:ex_logto, "~> 0.1.9"}
   ]
 end
 ```
