@@ -1,6 +1,6 @@
 # ExLogto
 
-**Alpha stage library - please do not use in production**
+**Alpha stage library - please use with caution**
 
 This is an Elixir client library for https://logto.io Authentication
 
@@ -12,7 +12,7 @@ by adding `ex_logto` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_logto, "~> 0.1.9"}
+    {:ex_logto, "~> 0.2.0"}
   ]
 end
 ```
